@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './App.css'; // Importer CSS-filen for styling
+import BookList from './BookList'; // Importer BookList-komponenten
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,14 +29,22 @@ const App = () => {
         onChange={handleSearchChange}
         className="search-input"
       />
-      <ul className="book-list">
-        {filteredBooks.map((book, index) => (
-          <li key={index} className="book-item">
-            <h2 className="book-title">{book.title}</h2>
-            <p className="book-author">{book.author}</p>
-          </li>
-        ))}
-      </ul>
+      {searchTerm.length >= 3 && (
+        <ul className="book-list">
+          {filteredBooks.map((book, index) => (
+            <li key={index} className="book-item">
+              <h2 className="book-title">{book.title}</h2>
+              <p className="book-author">{book.author}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      {searchTerm.length < 3 && (
+        <p className="message">Skriv minimum 3 bokstaver</p>
+      )}
+
+      {/* Legg til BookList-komponenten */}
+      <BookList />
     </div>
   );
 };
