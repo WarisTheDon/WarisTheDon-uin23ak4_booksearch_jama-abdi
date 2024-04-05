@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './App.css'; 
-import BookList from './BookList'; 
+import BookList from './BookCard'; 
 
-const App = () => {
+const SearchResults = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const handleSearchChange = (e) => {
@@ -24,4 +24,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default SearchResults;

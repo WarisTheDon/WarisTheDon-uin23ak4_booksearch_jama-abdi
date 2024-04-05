@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const BookList = ({ searchTerm }) => {
+const BookCard = ({ searchTerm }) => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
 
@@ -8,16 +8,16 @@ const BookList = ({ searchTerm }) => {
     const fetchBooks = async () => {
       try {
         if (!searchTerm) {
-          // Gjør API-kallet med fetch for å hente alle James Bond-bøkene
+          
           const response = await fetch(`https://openlibrary.org/search.json?q=james+bond+series`);
           const data = await response.json();
           const jamesBondBooks = data.docs.filter(book => book.title.toLowerCase().includes('james bond'));
           setBooks(jamesBondBooks);
         } else {
-          // Gjør API-kallet med fetch for å søke etter bøker basert på søketekst
+          
           const response = await fetch(`https://openlibrary.org/search.json?q=${searchTerm.toLowerCase()}`);
           const data = await response.json();
-          setFilteredBooks(data.docs.filter(book => book.title)); // Sjekk bare for tittel
+          setFilteredBooks(data.docs.filter(book => book.title)); 
         }
       } catch (error) {
         console.error('Error fetching books:', error);
@@ -76,4 +76,4 @@ const BookList = ({ searchTerm }) => {
   );
 };
 
-export default BookList;
+export default BookCard;
