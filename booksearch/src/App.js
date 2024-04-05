@@ -1,23 +1,13 @@
 import React, { useState } from 'react';
-import './App.css'; // Importer CSS-filen for styling
-import BookList from './BookList'; // Importer BookList-komponenten
+import './App.css'; 
+import BookList from './BookList'; 
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
-  const books = [
-    { title: 'Book 1', author: 'Author 1' },
-    { title: 'Book 2', author: 'Author 2' },
-    { title: 'Book 3', author: 'Author 3' },
-  ];
-
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
-
-  const filteredBooks = books.filter((book) =>
-    book.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="app-container">
@@ -29,22 +19,7 @@ const App = () => {
         onChange={handleSearchChange}
         className="search-input"
       />
-      {searchTerm.length >= 3 && (
-        <ul className="book-list">
-          {filteredBooks.map((book, index) => (
-            <li key={index} className="book-item">
-              <h2 className="book-title">{book.title}</h2>
-              <p className="book-author">{book.author}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-      {searchTerm.length < 3 && (
-        <p className="message">Skriv minimum 3 bokstaver</p>
-      )}
-
-      {/* Legg til BookList-komponenten */}
-      <BookList />
+      <BookList searchTerm={searchTerm} />
     </div>
   );
 };
