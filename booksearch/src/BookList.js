@@ -1,36 +1,58 @@
 import React, { useState, useEffect } from 'react';
 
-const BookList = () => {
+const BookList = ({ searchTerm }) => {
   const [books, setBooks] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
 
+  // Effekt for å laste inn James Bond-bøker når searchTerm er tomt
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        // Gjør API-kallet med fetch
         const response = await fetch(`https://openlibrary.org/search.json?q=james+bond+series`);
-        // Konverter responsen til JSON-format
         const data = await response.json();
-        // Filtrer ut bøker som ikke tilhører James Bond-serien
         const jamesBondBooks = data.docs.filter(book => book.title.toLowerCase().includes('james bond'));
-        // Sett seriene i tilstanden
         setBooks(jamesBondBooks);
       } catch (error) {
-        // Håndter eventuelle feil
         console.error('Error fetching books:', error);
         setBooks([]);
       }
     };
 
-    // Kall fetchBooks-funksjonen når komponenten lastes
-    fetchBooks();
-  }, []); // Tomt avhengighetsarray betyr at useEffect kjører kun ved først render
+    // Kjør fetchBooks kun hvis searchTerm er tomt
+    if (!searchTerm) {
+      fetchBooks();
+    }
+  }, [searchTerm]);
+
+  // Effekt for å søke etter bøker når searchTerm endres
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      // Søk kun hvis searchTerm er minst tre tegn
+      if (searchTerm && searchTerm.length >= 3) {
+        try {
+          const response = await fetch(`https://openlibrary.org/search.json?q=${searchTerm}`);
+          const data = await response.json();
+          setSearchResults(data.docs);
+        } catch (error) {
+          console.error('Error fetching search results:', error);
+          setSearchResults([]);
+        }
+      } else {
+        setSearchResults([]); // Tøm søkeresultatene hvis searchTerm ikke er lang nok
+      }
+    };
+
+    fetchSearchResults();
+  }, [searchTerm]);
+
+  // Velger hvilken liste som skal vises basert på om det er et søk eller ikke
+  const renderBooks = searchTerm ? searchResults : books;
 
   return (
     <div>
-      <h2>James Bond Series</h2>
+      <h2>{searchTerm ? 'Search Results' : 'James Bond Series'}</h2>
       <ul>
-        {/* Map gjennom seriene og vis dem */}
-        {books.map((book, index) => (
+        {renderBooks.map((book, index) => (
           <li key={index}>
             <div>Title: {book.title}</div>
             <div>Author: {book.author_name}</div>
