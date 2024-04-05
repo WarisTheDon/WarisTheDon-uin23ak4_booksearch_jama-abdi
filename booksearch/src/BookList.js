@@ -2,63 +2,76 @@ import React, { useState, useEffect } from 'react';
 
 const BookList = ({ searchTerm }) => {
   const [books, setBooks] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
 
-  // Effekt for å laste inn James Bond-bøker når searchTerm er tomt
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch(`https://openlibrary.org/search.json?q=james+bond+series`);
-        const data = await response.json();
-        const jamesBondBooks = data.docs.filter(book => book.title.toLowerCase().includes('james bond'));
-        setBooks(jamesBondBooks);
+        if (!searchTerm) {
+          // Gjør API-kallet med fetch for å hente alle James Bond-bøkene
+          const response = await fetch(`https://openlibrary.org/search.json?q=james+bond+series`);
+          const data = await response.json();
+          const jamesBondBooks = data.docs.filter(book => book.title.toLowerCase().includes('james bond'));
+          setBooks(jamesBondBooks);
+        } else {
+          // Gjør API-kallet med fetch for å søke etter bøker basert på søketekst
+          const response = await fetch(`https://openlibrary.org/search.json?q=${searchTerm.toLowerCase()}`);
+          const data = await response.json();
+          setFilteredBooks(data.docs.filter(book => book.title)); // Sjekk bare for tittel
+        }
       } catch (error) {
         console.error('Error fetching books:', error);
         setBooks([]);
+        setFilteredBooks([]);
       }
     };
 
-    // Kjør fetchBooks kun hvis searchTerm er tomt
-    if (!searchTerm) {
-      fetchBooks();
-    }
+    fetchBooks();
   }, [searchTerm]);
 
-  // Effekt for å søke etter bøker når searchTerm endres
-  useEffect(() => {
-    const fetchSearchResults = async () => {
-      // Søk kun hvis searchTerm er minst tre tegn
-      if (searchTerm && searchTerm.length >= 3) {
-        try {
-          const response = await fetch(`https://openlibrary.org/search.json?q=${searchTerm}`);
-          const data = await response.json();
-          setSearchResults(data.docs);
-        } catch (error) {
-          console.error('Error fetching search results:', error);
-          setSearchResults([]);
-        }
-      } else {
-        setSearchResults([]); // Tøm søkeresultatene hvis searchTerm ikke er lang nok
-      }
-    };
-
-    fetchSearchResults();
-  }, [searchTerm]);
-
-  // Velger hvilken liste som skal vises basert på om det er et søk eller ikke
-  const renderBooks = searchTerm ? searchResults : books;
+  const getImageUrl = book => {
+    return `https://covers.openlibrary.org/b/id/${book.cover_i ? book.cover_i : 'default'}-L.jpg`;
+  };
 
   return (
     <div>
-      <h2>{searchTerm ? 'Search Results' : 'James Bond Series'}</h2>
-      <ul>
-        {renderBooks.map((book, index) => (
-          <li key={index}>
-            <div>Title: {book.title}</div>
-            <div>Author: {book.author_name}</div>
-          </li>
-        ))}
-      </ul>
+      {searchTerm ? (
+        <div>
+          <h2>Search Results</h2>
+          <ul>
+            {filteredBooks.map((book, index) => (
+              <li key={index}>
+                <div>Title: {book.title}</div>
+                <div>First Published: {book.first_publish_year}</div>
+                <div>Author: {book.author_name}</div>
+                <div>Average Rating: {book.average_rating}</div>
+                <img src={getImageUrl(book)} alt={book.title} className="book-image" />
+                <a href={`https://www.amazon.com/s?k=${book.title}`} target="_blank" rel="noopener noreferrer">
+                  Buy on Amazon
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div>
+          <h2>James Bond Series</h2>
+          <ul>
+            {books.map((book, index) => (
+              <li key={index}>
+                <div>Title: {book.title}</div>
+                <div>First Published: {book.first_publish_year}</div>
+                <div>Author: {book.author_name}</div>
+                <div>Average Rating: {book.average_rating}</div>
+                <img src={getImageUrl(book)} alt={book.title} className="book-image" />
+                <a href={`https://www.amazon.com/s?k=${book.title}`} target="_blank" rel="noopener noreferrer">
+                  Buy on Amazon
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
